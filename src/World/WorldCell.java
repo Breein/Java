@@ -3,7 +3,7 @@ package World;
 
 import java.util.HashMap;
 
-import testjava.Mobs;
+import Java.Mobs;
 
 public class WorldCell implements Dimensions{
     private int id, x, y, wx, wy, price, codeType;

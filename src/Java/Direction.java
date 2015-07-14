@@ -1,4 +1,4 @@
-package testjava;
+package Java;
 
 interface Direction {
     int UP = 8;

@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Random;
 
 import Debug.Debug;
-import testjava.Eat;
-import testjava.Mobs;
+import Java.Eat;
+import Java.Mobs;
 
 public class Generator implements Dimensions {
     

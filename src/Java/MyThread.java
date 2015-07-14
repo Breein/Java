@@ -1,4 +1,4 @@
-package testjava;
+package Java;
 
 class MyThread implements Runnable{
     String name;

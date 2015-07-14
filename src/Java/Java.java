@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package testjava;
+package Java;
 
 
 import Debug.*;
@@ -234,7 +234,7 @@ class sensePlane extends JPanel implements Dimensions, MouseMotionListener, Mous
 
 //==============================================================================
 
-public class TestJava implements Dimensions {
+public class Java implements Dimensions {
     
     public static void main(String[] args) {
 

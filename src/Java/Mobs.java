@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package testjava;
+package Java;
 
 import Debug.Debug;
 import World.ContentWorldCell;

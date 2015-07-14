@@ -1,4 +1,4 @@
-package testjava;
+package Java;
 
 import Debug.Debug;
 import World.WorldCell;
