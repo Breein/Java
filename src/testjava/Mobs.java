@@ -6,6 +6,7 @@
 
 package testjava;
 
+import Debug.Debug;
 import World.ContentWorldCell;
 import World.Dimensions;
 import World.WorldCell;
@@ -20,6 +21,8 @@ import java.util.Map;
 public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
     private Thread thread = new Thread(this);
     private Timer mainTimer = new Timer(1000, this);
+
+    private Debug dg;
 
     // флаг для работы временного усыпления
     private boolean suspendFlag = false;
@@ -62,7 +65,7 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
 
     // остановка потока на заданный промежуток времени, сюда 1 секунду
     
-    public Mobs(int id, int x, int y, String name, String gender, WorldCell target, WorldCell[][] map, HashMap<String, Eat> eats){
+    public Mobs(int id, int x, int y, String name, String gender, WorldCell target, WorldCell[][] map, HashMap<String, Eat> eats, Debug debug){
         this.id = id;
         this.x = x;  // координата "х" в мире
         this.y = y;  // координата "у" в мире
@@ -72,6 +75,8 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
         this.map = map;
         this.eats = eats;
         this.map[y][x].beHere(this.name, this.id, "Mobs");
+
+        this.dg = debug;
 
         speed = map[y][x].gPrice();
 
@@ -406,6 +411,8 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
             int _wy = real_patch.get(0).Y() * POLYSIZE;//map[real_patch.get(0).Y()][real_patch.get(0).X()].wy();
 
             speed = map[real_patch.get(0).Y()][real_patch.get(0).X()].gPrice();
+
+            dg.setLog("Mob[" + id + "] speed", speed + "");
 
             if(wx == _wx && wy == _wy){
                 moveToCell();

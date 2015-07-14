@@ -3,12 +3,18 @@ package World;
 import java.util.HashMap;
 import java.util.Random;
 
+import Debug.Debug;
 import testjava.Eat;
 import testjava.Mobs;
 
 public class Generator implements Dimensions {
     
     private Random r = new Random();
+    private Debug debug;
+
+    public Generator(Debug debug){
+        this.debug = debug;
+    }
     
     public WorldCell[][] createMap(){
         int id = 0;
@@ -54,7 +60,7 @@ public class Generator implements Dimensions {
                 target = map[rnd(1, WORLD_Y - 1)][rnd(1, WORLD_X - 1)];
             }while(target.gType().equals("wall"));
 
-            allMobs.put("mob_" + i, new Mobs(i, x, y, "mob_" + i, "men", target, map, eats));
+            allMobs.put("mob_" + i, new Mobs(i, x, y, "mob_" + i, "men", target, map, eats, debug));
         }
         
         return allMobs;
@@ -71,12 +77,12 @@ public class Generator implements Dimensions {
                 y = rnd(1, WORLD_Y - 1);
             }while(map[y][x].gType().equals("wall"));
 
-            allEats.put("eat_" + i, new Eat(i, x, y, map));
+            allEats.put("eat_" + i, new Eat(i, x, y, map, debug));
         }
 
         return allEats;
     }
-    
+
     private int rnd(int min, int max){
         return r.nextInt(max - min) + min;
     }

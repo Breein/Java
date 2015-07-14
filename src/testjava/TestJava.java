@@ -5,6 +5,7 @@
 package testjava;
 
 
+import Debug.*;
 import World.*;
 
 import java.awt.*;
@@ -27,18 +28,20 @@ class RenderWorld extends JPanel implements ActionListener, Dimensions{
     private WorldCell[][] map;
     private int[] tileSize;
     private sensePlane sp;
+    private Debug dg;
 
 
     private ArrayList<cellRealPatch> patch;
 
     Timer mainTimer = new Timer(40, this);
 
-    public RenderWorld(WorldCell[][] map, HashMap<String, Mobs> mobs, HashMap<String, Eat> eats, int[] tileSize, sensePlane sp){
+    public RenderWorld(WorldCell[][] map, HashMap<String, Mobs> mobs, HashMap<String, Eat> eats, int[] tileSize, sensePlane sp, Debug debug){
         this.map = map;
         this.mobs = mobs;
         this.eats = eats;
         this.sp = sp;
         this.tileSize = tileSize;
+        this.dg = debug;
 
         mainTimer.start();
     }
@@ -114,6 +117,7 @@ class RenderWorld extends JPanel implements ActionListener, Dimensions{
 
     public void setTileSize(int tileSize){
         this.tileSize[2] = tileSize;
+        dg.setLog("Tile size", tileSize + "");
     }
 
     @Override
@@ -226,6 +230,8 @@ class sensePlane extends JPanel implements Dimensions, MouseMotionListener, Mous
     }
 }
 
+
+
 //==============================================================================
 
 public class TestJava implements Dimensions {
@@ -236,8 +242,9 @@ public class TestJava implements Dimensions {
 
         HashMap<String, Mobs> mobs;
         HashMap<String, Eat> eats;
-        
-        Generator generator = new Generator();
+
+        Debug debug = new Debug();
+        Generator generator = new Generator(debug);
          
         map = generator.createMap();
         generator.addTerritory(new Grass(), map);
@@ -254,7 +261,7 @@ public class TestJava implements Dimensions {
         int size[] = {WORLD_X * POLYSIZE, (WORLD_Y + 1) * POLYSIZE, 0, 0};
         Rectangle userWindow = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
         size[2] = (userWindow.width / 2) - (size[0] / 2);
-        size[3] = (userWindow.height / 2) - (size[1] / 2);
+        size[3] = (userWindow.height / 2) - (size[1] / 2) - 100;
 
         int sizeTile[] = {WORLD_X, WORLD_Y, POLYSIZE};
 
@@ -266,7 +273,7 @@ public class TestJava implements Dimensions {
         sp.setBounds(0, 0, size[0], size[1]);
         sp.setOpaque(false);
 
-        RenderWorld rw = new RenderWorld(map, mobs, eats, sizeTile, sp);
+        RenderWorld rw = new RenderWorld(map, mobs, eats, sizeTile, sp, debug);
         sp.setRenPlane(rw);
         rw.setBounds(0, 0, size[0], size[1]);
         rw.setOpaque(true);
@@ -281,5 +288,26 @@ public class TestJava implements Dimensions {
 
         window.add(layeredPane);
         window.setVisible(true);
+
+        ////////////////////////////////////////////////////////////////
+        String[] stringsDebug = {"1", "2"};
+
+        JFrame debugWindow = new JFrame("Debug");
+        JLayeredPane debugLayeredPane = new JLayeredPane();
+        debugLayeredPane.setBounds(0, 0, size[0], 200);
+
+        RenderDebug rd = new RenderDebug(debug);
+        rd.setBounds(0, 0, size[0], 200);
+        rd.setOpaque(true);
+
+        debugLayeredPane.add(rd, 0);
+
+        debugWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        debugWindow.setLocation(size[2], size[3] + size[1]);
+        debugWindow.setSize(size[0], 200);
+        debugWindow.setResizable(false);
+
+        debugWindow.add(debugLayeredPane);
+        debugWindow.setVisible(true);
     }
 }
