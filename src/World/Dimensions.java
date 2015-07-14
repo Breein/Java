@@ -14,5 +14,6 @@ public interface Dimensions {
 
     int POLYSIZE = 22;
 
+    World WORLD = new World();
     Debug LOG = new Debug();
 }

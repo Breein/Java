@@ -7,6 +7,7 @@ package Java;
 
 import Debug.*;
 import World.*;
+import javafx.scene.control.Cell;
 
 import java.awt.*;
 
@@ -35,12 +36,12 @@ class RenderWorld extends JPanel implements ActionListener, Dimensions{
 
     Timer mainTimer = new Timer(40, this);
 
-    public RenderWorld(WorldCell[][] map, HashMap<String, Mobs> mobs, HashMap<String, Eat> eats, World worldInfo, sensePlane sp){
+    public RenderWorld(WorldCell[][] map, HashMap<String, Mobs> mobs, HashMap<String, Eat> eats, sensePlane sp){
         this.map = map;
         this.mobs = mobs;
         this.eats = eats;
         this.sp = sp;
-        this.world = worldInfo;
+        this.world = WORLD;
 
         mainTimer.start();
     }
@@ -79,7 +80,8 @@ class RenderWorld extends JPanel implements ActionListener, Dimensions{
         }
 
         for (Mobs mob : mobs.values()) {
-            int x, y;
+            int x, y, xx, yy;
+            ArrayList<cellRealPatch> patch;
             //long _x, _y;
 
             x = ((mob.x() / POLYSIZE) * world.poly()) + mob.x() % POLYSIZE;
@@ -104,6 +106,13 @@ class RenderWorld extends JPanel implements ActionListener, Dimensions{
             g.setColor(Color.black);
             g.drawRect(x, y, world.poly(), world.poly());
             g.drawString(mob.gHunger() + "", x, y + ((world.poly() / 2) + 4));
+
+            patch = mob.Patch();
+            xx = patch.get(0).X();
+            yy = patch.get(0).Y();
+
+            g.setColor(Color.magenta);
+            g.fillRect(xx * world.poly(), yy * world.poly(), world.poly(), world.poly());
         }
 
         for (Eat eat : eats.values()) {
@@ -128,8 +137,8 @@ class sensePlane extends JPanel implements Dimensions, MouseMotionListener, Mous
     private RenderWorld renPlane;
     private int windowSize[] = {0, 0, WORLD_X * POLYSIZE, WORLD_Y * POLYSIZE, (WORLD_X * POLYSIZE) - 20, (WORLD_Y * POLYSIZE) - 20};
 
-    sensePlane(World worldInfo){
-        this.worldInfo = worldInfo;
+    sensePlane(){
+        this.worldInfo = WORLD;
         this.poly = worldInfo.poly();
 
         addMouseMotionListener(this);
@@ -266,11 +275,11 @@ public class Java implements Dimensions {
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setBounds(0, 0, size[0], size[1]);
 
-        sensePlane sp = new sensePlane(worldInfo);
+        sensePlane sp = new sensePlane();
         sp.setBounds(0, 0, size[0], size[1]);
         sp.setOpaque(false);
 
-        RenderWorld rw = new RenderWorld(map, mobs, eats, worldInfo, sp);
+        RenderWorld rw = new RenderWorld(map, mobs, eats, sp);
         sp.setRenPlane(rw);
         rw.setBounds(0, 0, size[0], size[1]);
         rw.setOpaque(true);
@@ -287,7 +296,6 @@ public class Java implements Dimensions {
         window.setVisible(true);
 
         ////////////////////////////////////////////////////////////////
-        String[] stringsDebug = {"1", "2"};
 
         JFrame debugWindow = new JFrame("Debug");
         JLayeredPane debugLayeredPane = new JLayeredPane();

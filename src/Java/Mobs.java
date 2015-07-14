@@ -6,9 +6,9 @@
 
 package Java;
 
-import Debug.Debug;
 import World.ContentWorldCell;
 import World.Dimensions;
+import World.World;
 import World.WorldCell;
 
 import javax.swing.*;
@@ -109,7 +109,7 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
         return target;
     }
 
-    public ArrayList<cellRealPatch> gPatch(){
+    public ArrayList<cellRealPatch> Patch(){
         return real_patch;
     }
 
@@ -402,13 +402,25 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
     }
 
     private void moveToPatch(){
+        World world = WORLD;
+        double percent;
+
         if(real_patch.size() > 0){
-            int _wx = real_patch.get(0).X() * POLYSIZE;//map[real_patch.get(0).Y()][real_patch.get(0).X()].wx();
-            int _wy = real_patch.get(0).Y() * POLYSIZE;//map[real_patch.get(0).Y()][real_patch.get(0).X()].wy();
+            int _wx = real_patch.get(0).X() * world.poly();//map[real_patch.get(0).Y()][real_patch.get(0).X()].wx();
+            int _wy = real_patch.get(0).Y() * world.poly();//map[real_patch.get(0).Y()][real_patch.get(0).X()].wy();
+
+            LOG.setLog("wx", wx + "");
+            LOG.setLog("wy", wy + "");
 
             speed = map[real_patch.get(0).Y()][real_patch.get(0).X()].price();
+            //percent = (world.poly() - 22) * 4.55;
+            //percent = (speed / 100) * percent;
 
-            //dg.setLog("Mob[" + id + "] speed", speed + "");
+            //LOG.setLog("Percent", percent + "");
+
+            //speed = speed - (int) percent;
+
+            LOG.setLog("Mob[" + id + "] speed", speed + "");
 
             if(wx == _wx && wy == _wy){
                 moveToCell();
@@ -449,6 +461,7 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
 
                 // ====================================
                 Thread.sleep(speed); // спать n м.секунд
+                LOG.setLog("Tread: ", speed + "");
             }
         }catch (InterruptedException ex){
             ex.printStackTrace();
