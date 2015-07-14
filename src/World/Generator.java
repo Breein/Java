@@ -3,18 +3,14 @@ package World;
 import java.util.HashMap;
 import java.util.Random;
 
-import Debug.Debug;
 import Java.Eat;
 import Java.Mobs;
 
 public class Generator implements Dimensions {
-    
-    private Random r = new Random();
-    private Debug debug;
 
-    public Generator(Debug debug){
-        this.debug = debug;
-    }
+    private Random r = new Random();
+
+    //public Generator(Debug debug){}
     
     public WorldCell[][] createMap(){
         int id = 0;
@@ -35,9 +31,9 @@ public class Generator implements Dimensions {
             for(int i = ob.y(k), len = ob.y(k) + ob.sy(k); i < len; i++){
                 for(int j = ob.x(k), lenj = ob.x(k) + ob.sx(k); j < lenj; j++){
                     try{
-                      map[i][j].sType(ob.gStyle());
-                      map[i][j].sPrice(ob.gPrice());
-                      map[i][j].sCodeType(ob.gCodeType());
+                      map[i][j].setType(ob.gStyle());
+                      map[i][j].setPrice(ob.gPrice());
+                      map[i][j].setCodeType(ob.gCodeType());
                     }catch(ArrayIndexOutOfBoundsException error){}
                 }
             }
@@ -54,13 +50,13 @@ public class Generator implements Dimensions {
             do{
                 x = rnd(1, WORLD_X - 1);
                 y = rnd(1, WORLD_Y - 1);
-            }while(map[y][x].gType().equals("wall"));
+            }while(map[y][x].type().equals("wall"));
 
             do{
                 target = map[rnd(1, WORLD_Y - 1)][rnd(1, WORLD_X - 1)];
-            }while(target.gType().equals("wall"));
+            }while(target.type().equals("wall"));
 
-            allMobs.put("mob_" + i, new Mobs(i, x, y, "mob_" + i, "men", target, map, eats, debug));
+            allMobs.put("mob_" + i, new Mobs(i, x, y, "mob_" + i, "men", target, map, eats));
         }
         
         return allMobs;
@@ -75,9 +71,9 @@ public class Generator implements Dimensions {
             do{
                 x = rnd(1, WORLD_X - 1);
                 y = rnd(1, WORLD_Y - 1);
-            }while(map[y][x].gType().equals("wall"));
+            }while(map[y][x].type().equals("wall"));
 
-            allEats.put("eat_" + i, new Eat(i, x, y, map, debug));
+            allEats.put("eat_" + i, new Eat(i, x, y, map));
         }
 
         return allEats;

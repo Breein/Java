@@ -22,8 +22,6 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
     private Thread thread = new Thread(this);
     private Timer mainTimer = new Timer(1000, this);
 
-    private Debug dg;
-
     // флаг для работы временного усыпления
     private boolean suspendFlag = false;
     // флаг для полной остановки потока
@@ -65,7 +63,7 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
 
     // остановка потока на заданный промежуток времени, сюда 1 секунду
     
-    public Mobs(int id, int x, int y, String name, String gender, WorldCell target, WorldCell[][] map, HashMap<String, Eat> eats, Debug debug){
+    public Mobs(int id, int x, int y, String name, String gender, WorldCell target, WorldCell[][] map, HashMap<String, Eat> eats){
         this.id = id;
         this.x = x;  // координата "х" в мире
         this.y = y;  // координата "у" в мире
@@ -76,9 +74,7 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
         this.eats = eats;
         this.map[y][x].beHere(this.name, this.id, "Mobs");
 
-        this.dg = debug;
-
-        speed = map[y][x].gPrice();
+        speed = map[y][x].price();
 
         wx = x * POLYSIZE; // координата "х" в окне, при отрисовке
         wy = y * POLYSIZE; // координата "у" в окне, при отрисовке
@@ -127,8 +123,8 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
 
             preparePatch();
 
-            pid = map[y][x].gId();
-            pType = map[y][x].gType();
+            pid = map[y][x].id();
+            pType = map[y][x].type();
 
             if(opened.get(pid) == null && ignored.get(pid) == null && !pType.equals("wall")){
                 opened.put(pid, new AStarOpened(0, x, y, 0, 0, 0));
@@ -144,7 +140,7 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
 
                 int t_x = target.x();
                 int t_y = target.y();
-                int t_id = target.gId();
+                int t_id = target.id();
 
                 if(opened.get(t_id) == null){
 
@@ -176,8 +172,8 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
 
                             int px = X + j;
                             int py = Y + i;
-                            int t_pid = map[py][px].gId();
-                            String ptype = map[py][px].gType();
+                            int t_pid = map[py][px].id();
+                            String ptype = map[py][px].type();
 
 
                             // Если клетка непроходимая или она находится в закрытом списке, игнорируем ее. В противном случае делаем следующее
@@ -191,25 +187,25 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
 
                                 if(direct){
                                     if(i == -1 && j == -1){
-                                        if(map[py + 1][px].gType().equals("wall") || map[py][px + 1].gType().equals("wall")){
+                                        if(map[py + 1][px].type().equals("wall") || map[py][px + 1].type().equals("wall")){
                                             diagonally = false;
                                         }
                                     }
 
                                     if(i == -1 && j == 1){
-                                        if(map[py + 1][px].gType().equals("wall") || map[py][px - 1].gType().equals("wall")){
+                                        if(map[py + 1][px].type().equals("wall") || map[py][px - 1].type().equals("wall")){
                                             diagonally = false;
                                         }
                                     }
 
                                     if(i == 1 && j == -1){
-                                        if(map[py - 1][px].gType().equals("wall") || map[py][px + 1].gType().equals("wall")){
+                                        if(map[py - 1][px].type().equals("wall") || map[py][px + 1].type().equals("wall")){
                                             diagonally = false;
                                         }
                                     }
 
                                     if(i == 1 && j == 1){
-                                        if(map[py][px-1].gType().equals("wall") || map[py-1][px].gType().equals("wall")){
+                                        if(map[py][px-1].type().equals("wall") || map[py-1][px].type().equals("wall")){
                                             diagonally = false;
                                         }
                                     }
@@ -224,7 +220,7 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
                                         int h = (Math.abs(t_x - px) + Math.abs(t_y - py)) * 10;
                                         int g = (j == 0 || i == 0) ? 10 : 14;
 
-                                        g = g + ignored.get(pid).G() + map[py][px].gPrice();
+                                        g = g + ignored.get(pid).G() + map[py][px].price();
                                         f = h + g;
 
                                         opened.put(t_pid, new AStarOpened(parent, px, py, h, g, f));
@@ -236,7 +232,7 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
 
                                     }else{
 
-                                        int g1 = (j == 0 || i == 0) ? 10 : 14; g1 = g1 + ignored.get(pid).G() + map[py][px].gPrice();
+                                        int g1 = (j == 0 || i == 0) ? 10 : 14; g1 = g1 + ignored.get(pid).G() + map[py][px].price();
                                         int g2 = opened.get(t_pid).G();
 
                                         if(g1 < g2){
@@ -257,7 +253,7 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
 
                     real_patch.add(new cellRealPatch(t_id, opened.get(t_id).X(), opened.get(t_id).Y()));
 
-                    int start = map[y][x].gId();
+                    int start = map[y][x].id();
                     int target = opened.get(t_id).parent();
 
                     while(target != start){
@@ -322,12 +318,12 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
 
         for(int i = 0, len = 8 - index; i < len; i++){
 
-            if(map[yy][xx] != null && !map[yy][xx].gType().equals("wall")){
+            if(map[yy][xx] != null && !map[yy][xx].type().equals("wall")){
                 if(key){
-                    add_inSight(map[yy][xx].gContent(), xx, yy);
+                    add_inSight(map[yy][xx].content(), xx, yy);
                 }else{
                     if(i != 0){
-                        add_inSight(map[yy][xx].gContent(), xx, yy);
+                        add_inSight(map[yy][xx].content(), xx, yy);
                     }
                 }
             }else{
@@ -377,13 +373,13 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
                     inSight.put(objects.Type() + "_" + objects.ID(), new contentInSight(objects.ID(), objects.Type()));
                 }else{
                     if(x != xx || y != yy){
-                        inSight.put("cell_" + map[yy][xx].gId(), new contentInSight(map[yy][xx].gId(), "Cell"));
+                        inSight.put("cell_" + map[yy][xx].id(), new contentInSight(map[yy][xx].id(), "Cell"));
                     }
                 }
             }
         }else{
             if(x != xx || y != yy){
-                inSight.put("cell_" + map[yy][xx].gId(), new contentInSight(map[yy][xx].gId(), "Cell"));
+                inSight.put("cell_" + map[yy][xx].id(), new contentInSight(map[yy][xx].id(), "Cell"));
             }
         }
     }
@@ -410,9 +406,9 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
             int _wx = real_patch.get(0).X() * POLYSIZE;//map[real_patch.get(0).Y()][real_patch.get(0).X()].wx();
             int _wy = real_patch.get(0).Y() * POLYSIZE;//map[real_patch.get(0).Y()][real_patch.get(0).X()].wy();
 
-            speed = map[real_patch.get(0).Y()][real_patch.get(0).X()].gPrice();
+            speed = map[real_patch.get(0).Y()][real_patch.get(0).X()].price();
 
-            dg.setLog("Mob[" + id + "] speed", speed + "");
+            //dg.setLog("Mob[" + id + "] speed", speed + "");
 
             if(wx == _wx && wy == _wy){
                 moveToCell();

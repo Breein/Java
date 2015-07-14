@@ -1,5 +1,7 @@
 package World;
 
+import Debug.Debug;
+
 public interface Dimensions {
     int WORLD_X = 40;
     int WORLD_Y = 30;
@@ -11,4 +13,6 @@ public interface Dimensions {
     int SWAMP[] =   {3, 4,   5, 8, 3, 10, 370};
 
     int POLYSIZE = 22;
+
+    Debug LOG = new Debug();
 }

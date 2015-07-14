@@ -8,14 +8,12 @@ public class Eat {
     private int amount = 100;
     private String type = "Eat";
     private WorldCell[][] map;
-    private Debug debug;
 
-    public Eat(int id, int x, int y, WorldCell[][] map, Debug debug){
+    public Eat(int id, int x, int y, WorldCell[][] map){
         this.id = id;
         this.x = x;
         this.y = y;
         this.map = map;
-        this.debug = debug;
 
         this.map[this.y][this.x].beHere("eat_" + id, this.id, "Eats");
     }

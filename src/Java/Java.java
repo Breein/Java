@@ -26,7 +26,7 @@ class RenderWorld extends JPanel implements ActionListener, Dimensions{
     private HashMap<String, Mobs> mobs;
     private HashMap<String, Eat> eats;
     private WorldCell[][] map;
-    private int[] tileSize;
+    private World world;
     private sensePlane sp;
     private Debug dg;
 
@@ -35,13 +35,12 @@ class RenderWorld extends JPanel implements ActionListener, Dimensions{
 
     Timer mainTimer = new Timer(40, this);
 
-    public RenderWorld(WorldCell[][] map, HashMap<String, Mobs> mobs, HashMap<String, Eat> eats, int[] tileSize, sensePlane sp, Debug debug){
+    public RenderWorld(WorldCell[][] map, HashMap<String, Mobs> mobs, HashMap<String, Eat> eats, World worldInfo, sensePlane sp){
         this.map = map;
         this.mobs = mobs;
         this.eats = eats;
         this.sp = sp;
-        this.tileSize = tileSize;
-        this.dg = debug;
+        this.world = worldInfo;
 
         mainTimer.start();
     }
@@ -50,11 +49,11 @@ class RenderWorld extends JPanel implements ActionListener, Dimensions{
     public void paint(Graphics g) {
 
         g.setColor(Color.white);
-        g.fillRect(0, 0 , WORLD_X * POLYSIZE, WORLD_Y * POLYSIZE);
+        g.fillRect(0, 0, WORLD_X * POLYSIZE, WORLD_Y * POLYSIZE);
 
-        for(int y = 0; y < tileSize[1]; y++){
-            for(int x = 0; x < tileSize[0]; x++){
-                switch (map[y][x].gCodeType()){
+        for (int y = 0; y < world.y(); y++) {
+            for (int x = 0; x < world.x(); x++) {
+                switch (map[y][x].codeType()) {
                     case 0:
                         g.setColor(new Color(0, 0, 0));
                         break;
@@ -75,16 +74,16 @@ class RenderWorld extends JPanel implements ActionListener, Dimensions{
                         g.setColor(new Color(232, 232, 232));
                         break;
                 }
-                g.fillRect(x *  tileSize[2], y * tileSize[2], tileSize[2], tileSize[2]);
+                g.fillRect(x * world.poly(), y * world.poly(), world.poly(), world.poly());
             }
         }
 
-        for(Mobs mob : mobs.values()){
+        for (Mobs mob : mobs.values()) {
             int x, y;
             //long _x, _y;
 
-            x = ((mob.x() / POLYSIZE) * tileSize[2]) + mob.x() % POLYSIZE;
-            y = ((mob.y() / POLYSIZE) * tileSize[2]) + mob.y() % POLYSIZE;
+            x = ((mob.x() / POLYSIZE) * world.poly()) + mob.x() % POLYSIZE;
+            y = ((mob.y() / POLYSIZE) * world.poly()) + mob.y() % POLYSIZE;
 
             //System.out.println(_x + " : " + _y + " | " + mob.x() % POLYSIZE + " : " + mob.y());
 
@@ -98,26 +97,21 @@ class RenderWorld extends JPanel implements ActionListener, Dimensions{
             */
 
             g.setColor(Color.blue);
-            g.fillRect(mob.gTarget().x() *  tileSize[2], mob.gTarget().y() * tileSize[2], tileSize[2], tileSize[2]);
+            g.fillRect(mob.gTarget().x() * world.poly(), mob.gTarget().y() * world.poly(), world.poly(), world.poly());
 
             g.setColor(Color.cyan);
-            g.fillRect(x, y, tileSize[2], tileSize[2]);
+            g.fillRect(x, y, world.poly(), world.poly());
             g.setColor(Color.black);
-            g.drawRect(x, y, tileSize[2], tileSize[2]);
-            g.drawString(mob.gHunger() + "", x, y + ((tileSize[2] / 2) + 4));
+            g.drawRect(x, y, world.poly(), world.poly());
+            g.drawString(mob.gHunger() + "", x, y + ((world.poly() / 2) + 4));
         }
 
-        for(Eat eat : eats.values()){
+        for (Eat eat : eats.values()) {
             g.setColor(Color.red);
-            g.fillRect(eat.X() *  tileSize[2], eat.Y() * tileSize[2], tileSize[2], tileSize[2]);
+            g.fillRect(eat.X() * world.poly(), eat.Y() * world.poly(), world.poly(), world.poly());
             g.setColor(Color.white);
-            g.drawString(eat.Amount() + "", eat.X() *  tileSize[2], (eat.Y() * tileSize[2]) + ((tileSize[2] / 2) + 4));
+            g.drawString(eat.Amount() + "", eat.X() * world.poly(), (eat.Y() * world.poly()) + ((world.poly() / 2) + 4));
         }
-    }
-
-    public void setTileSize(int tileSize){
-        this.tileSize[2] = tileSize;
-        dg.setLog("Tile size", tileSize + "");
     }
 
     @Override
@@ -129,12 +123,14 @@ class RenderWorld extends JPanel implements ActionListener, Dimensions{
 
 class sensePlane extends JPanel implements Dimensions, MouseMotionListener, MouseWheelListener{
     private int mx = 0, my = 0;
-    private int tileSize;
+    private World worldInfo;
+    private int poly;
     private RenderWorld renPlane;
     private int windowSize[] = {0, 0, WORLD_X * POLYSIZE, WORLD_Y * POLYSIZE, (WORLD_X * POLYSIZE) - 20, (WORLD_Y * POLYSIZE) - 20};
 
-    sensePlane(int tileSize){
-        this.tileSize = tileSize;
+    sensePlane(World worldInfo){
+        this.worldInfo = worldInfo;
+        this.poly = worldInfo.poly();
 
         addMouseMotionListener(this);
         addMouseWheelListener(this);
@@ -177,9 +173,9 @@ class sensePlane extends JPanel implements Dimensions, MouseMotionListener, Mous
         boolean key = false;
 
         if(mouse > 0){
-            tileSize = tileSize - 1; // уменьшить размер тайла
-            tileSize = tileSize < POLYSIZE ? POLYSIZE : tileSize;       // если он меньше минимального, то ставим минимальный
-            renPlane.setSize(WORLD_X * tileSize, WORLD_Y * tileSize);   // установка размеров по новому тайлу
+            poly = poly - 1; // уменьшить размер тайла
+            poly = poly < POLYSIZE ? POLYSIZE : poly;       // если он меньше минимального, то ставим минимальный
+            renPlane.setSize(WORLD_X * poly, WORLD_Y * poly);   // установка размеров по новому тайлу
 
             int x, y, w, h; Rectangle bounds = renPlane.getBounds();    // переменные и получение размера нового полотна (это формально будущий размер, а не текущий)
 
@@ -221,12 +217,13 @@ class sensePlane extends JPanel implements Dimensions, MouseMotionListener, Mous
             x = e.getX() / (windowSize[2] / WORLD_X); // вычилсяем на сколько двигать слой, по координате мыши Х
             y = e.getY() / (windowSize[3] / WORLD_Y); // по координате мыши У
 
-            tileSize = tileSize + 1;
-            renPlane.setSize(WORLD_X * tileSize, WORLD_Y * tileSize);
+            poly = poly + 1;
 
+            renPlane.setSize(WORLD_X * poly, WORLD_Y * poly);
             renPlane.setLocation(bounds.x - x, bounds.y - y);
         }
-        renPlane.setTileSize(tileSize);
+
+        worldInfo.setPoly(poly);
     }
 }
 
@@ -238,13 +235,15 @@ public class Java implements Dimensions {
     
     public static void main(String[] args) {
 
+        World worldInfo = new World();
+
         WorldCell[][] map;
 
         HashMap<String, Mobs> mobs;
         HashMap<String, Eat> eats;
 
         Debug debug = new Debug();
-        Generator generator = new Generator(debug);
+        Generator generator = new Generator();
          
         map = generator.createMap();
         generator.addTerritory(new Grass(), map);
@@ -263,17 +262,15 @@ public class Java implements Dimensions {
         size[2] = (userWindow.width / 2) - (size[0] / 2);
         size[3] = (userWindow.height / 2) - (size[1] / 2) - 100;
 
-        int sizeTile[] = {WORLD_X, WORLD_Y, POLYSIZE};
-
         JFrame window = new JFrame("World 0.1");
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setBounds(0, 0, size[0], size[1]);
 
-        sensePlane sp = new sensePlane(POLYSIZE);
+        sensePlane sp = new sensePlane(worldInfo);
         sp.setBounds(0, 0, size[0], size[1]);
         sp.setOpaque(false);
 
-        RenderWorld rw = new RenderWorld(map, mobs, eats, sizeTile, sp, debug);
+        RenderWorld rw = new RenderWorld(map, mobs, eats, worldInfo, sp);
         sp.setRenPlane(rw);
         rw.setBounds(0, 0, size[0], size[1]);
         rw.setOpaque(true);
@@ -296,7 +293,7 @@ public class Java implements Dimensions {
         JLayeredPane debugLayeredPane = new JLayeredPane();
         debugLayeredPane.setBounds(0, 0, size[0], 200);
 
-        RenderDebug rd = new RenderDebug(debug);
+        RenderDebug rd = new RenderDebug();
         rd.setBounds(0, 0, size[0], 200);
         rd.setOpaque(true);
 

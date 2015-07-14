@@ -23,26 +23,26 @@ public class WorldCell implements Dimensions{
         wy = y * POLYSIZE;
     }
     
-    public void sType(String type){
+    public void setType(String type){
         this.type = type;
     }
-    public void sPrice(int price){
+    public void setPrice(int price){
         this.price = price;
     }
-    public void sCodeType(int codeType){
+    public void setCodeType(int codeType){
         this.codeType = codeType;
     }
     
-    public String gType(){
+    public String type(){
         return type;
     }
-    public int gId(){
+    public int id(){
         return id;
     }
-    public int gPrice(){
+    public int price(){
         return price;
     }
-    public int gCodeType(){
+    public int codeType(){
         return codeType;
     }
 
@@ -80,7 +80,7 @@ public class WorldCell implements Dimensions{
         System.out.println("");
     }
 
-    public HashMap<String, ContentWorldCell> gContent(){
+    public HashMap<String, ContentWorldCell> content(){
         return content;
     }
 }
