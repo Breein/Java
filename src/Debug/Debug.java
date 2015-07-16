@@ -22,7 +22,7 @@ public class Debug {
         if(logs.containsKey(id)){
             result = logs.get(id).getName() + ": " + logs.get(id).getLog();
         }else{
-            result = "Нет такого лога. (" + id + ")";
+            result = "РќРµС‚ С‚Р°РєРѕРіРѕ Р»РѕРіР°. (" + id + ")";
         }
         return result;
     }

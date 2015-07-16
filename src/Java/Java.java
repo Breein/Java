@@ -101,6 +101,9 @@ class RenderWorld extends JPanel implements ActionListener, Dimensions{
             g.setColor(Color.blue);
             g.fillRect(mob.gTarget().x() * world.poly(), mob.gTarget().y() * world.poly(), world.poly(), world.poly());
 
+            g.setColor(new Color(157, 44, 44));
+            g.fillRect(mob.X() * world.poly(), mob.Y() * world.poly(), world.poly(), world.poly());
+
             g.setColor(Color.cyan);
             g.fillRect(x, y, world.poly(), world.poly());
             g.setColor(Color.black);
@@ -108,11 +111,13 @@ class RenderWorld extends JPanel implements ActionListener, Dimensions{
             g.drawString(mob.gHunger() + "", x, y + ((world.poly() / 2) + 4));
 
             patch = mob.Patch();
-            xx = patch.get(0).X();
-            yy = patch.get(0).Y();
+            if(patch.size() > 0) {
+                xx = patch.get(0).X();
+                yy = patch.get(0).Y();
 
-            g.setColor(Color.magenta);
-            g.fillRect(xx * world.poly(), yy * world.poly(), world.poly(), world.poly());
+                g.setColor(Color.magenta);
+                g.fillRect(xx * world.poly(), yy * world.poly(), world.poly(), world.poly());
+            }
         }
 
         for (Eat eat : eats.values()) {
@@ -220,16 +225,25 @@ class sensePlane extends JPanel implements Dimensions, MouseMotionListener, Mous
             }
 
             renPlane.setLocation(x, y); // установить получившиеся координаты сдвига слою
+
+            worldInfo.setSX(x);
+            worldInfo.setSY(y);
         }else{ //////////////////////////////////////
             int x, y; Rectangle bounds = renPlane.getBounds();
 
             x = e.getX() / (windowSize[2] / WORLD_X); // вычилсяем на сколько двигать слой, по координате мыши Х
             y = e.getY() / (windowSize[3] / WORLD_Y); // по координате мыши У
 
+            x = bounds.x - x;
+            y = bounds.y - y;
+
             poly = poly + 1;
 
             renPlane.setSize(WORLD_X * poly, WORLD_Y * poly);
-            renPlane.setLocation(bounds.x - x, bounds.y - y);
+            renPlane.setLocation(x, y);
+
+            worldInfo.setSX(x);
+            worldInfo.setSY(y);
         }
 
         worldInfo.setPoly(poly);
@@ -255,9 +269,9 @@ public class Java implements Dimensions {
         Generator generator = new Generator();
          
         map = generator.createMap();
-        generator.addTerritory(new Grass(), map);
-        generator.addTerritory(new Sand(), map);
-        generator.addTerritory(new Swamp(), map);
+        //generator.addTerritory(new Grass(), map);
+        //generator.addTerritory(new Sand(), map);
+        //generator.addTerritory(new Swamp(), map);
         generator.addTerritory(new Wall(), map);
 
         eats = generator.createEats(1, map);

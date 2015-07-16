@@ -28,6 +28,8 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
     private boolean stop = false;
     
     private int id, x, y, wx, wy;
+    private double mx, my;
+
     private int live = 100;
     private int hunger = 0;
     private int speed = 100;
@@ -41,6 +43,8 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
     private HashMap<Integer, AStarOpened> ignored = new HashMap<Integer, AStarOpened>();
     private ArrayList<cellRealPatch> real_patch = new ArrayList<cellRealPatch>();
     private HashMap<String, contentInSight> inSight = new HashMap<String, contentInSight>();
+
+    private int tileSize = 22;
 
     //private HashMap<String, >
     
@@ -78,7 +82,10 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
 
         wx = x * POLYSIZE; // координата "х" в окне, при отрисовке
         wy = y * POLYSIZE; // координата "у" в окне, при отрисовке
-        
+
+        mx = x * POLYSIZE;
+        my = y * POLYSIZE;
+
         thread.setName(this.name);
         find_patch(false);
         start();
@@ -90,6 +97,12 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
     }
     public int y(){
         return wy;
+    }
+    public int X(){
+        return x;
+    }
+    public int Y(){
+        return y;
     }
     public String gName(){
         return name;
@@ -403,26 +416,24 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
 
     private void moveToPatch(){
         World world = WORLD;
+        int poly = world.poly();
         double percent;
 
         if(real_patch.size() > 0){
-            int _wx = real_patch.get(0).X() * world.poly();//map[real_patch.get(0).Y()][real_patch.get(0).X()].wx();
-            int _wy = real_patch.get(0).Y() * world.poly();//map[real_patch.get(0).Y()][real_patch.get(0).X()].wy();
+            int _wx = real_patch.get(0).X() * POLYSIZE;//map[real_patch.get(0).Y()][real_patch.get(0).X()].wx();
+            int _wy = real_patch.get(0).Y() * POLYSIZE;//map[real_patch.get(0).Y()][real_patch.get(0).X()].wy();
 
-            LOG.setLog("wx", wx + "");
-            LOG.setLog("wy", wy + "");
+            int wx_ = real_patch.get(0).X() * poly;
+            int wy_ = real_patch.get(0).Y() * poly;
 
             speed = map[real_patch.get(0).Y()][real_patch.get(0).X()].price();
-            //percent = (world.poly() - 22) * 4.55;
-            //percent = (speed / 100) * percent;
 
-            //LOG.setLog("Percent", percent + "");
+            percent = (world.poly() - 22) * 4.55;
+            LOG.setLog("Percent", percent + "");
+            percent = 1 - (0.001 * percent);
+            LOG.setLog("Percent 2", percent + "");
 
-            //speed = speed - (int) percent;
-
-            LOG.setLog("Mob[" + id + "] speed", speed + "");
-
-            if(wx == _wx && wy == _wy){
+            if(mx == _wx && my == _wy || wx == wx_ && wy == wy_){
                 moveToCell();
             }else{
                 if(wx != _wx){
@@ -431,7 +442,17 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
                 if(wy != _wy){
                     wy = wy > _wy ? wy - 1 : wy + 1;
                 }
+
+                if(mx != _wx){
+                    mx = mx > _wx ? mx - percent : mx + percent;
+                }
+                if(my != _wy){
+                    my = my > _wy ? my - percent : my + percent;
+                }
+
+                LOG.setLog("MX : MY", mx + " : " + my + ", p: " + percent);
             }
+
         }
     }
 
@@ -461,7 +482,7 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
 
                 // ====================================
                 Thread.sleep(speed); // спать n м.секунд
-                LOG.setLog("Tread: ", speed + "");
+                //LOG.setLog("Tread: ", speed + "");
             }
         }catch (InterruptedException ex){
             ex.printStackTrace();
