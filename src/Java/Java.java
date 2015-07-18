@@ -82,27 +82,17 @@ class RenderWorld extends JPanel implements ActionListener, Dimensions{
         for (Mobs mob : mobs.values()) {
             int x, y, xx, yy;
             ArrayList<cellRealPatch> patch;
-            //long _x, _y;
 
-            x = ((mob.x() / POLYSIZE) * world.poly()) + mob.x() % POLYSIZE;
-            y = ((mob.y() / POLYSIZE) * world.poly()) + mob.y() % POLYSIZE;
-
-            //System.out.println(_x + " : " + _y + " | " + mob.x() % POLYSIZE + " : " + mob.y());
-
-            //x = (int) _x; y = (int) _y;
-            /*
-            patch = mob.gPatch();
-            for(int i = 0, len = patch.size(); i < len; i++){
-                g.setColor(Color.gray);
-                g.fillRect(patch.get(i).X() * POLYSIZE, patch.get(i).Y() * POLYSIZE, POLYSIZE, POLYSIZE);
-            }
-            */
+            x = mob.gmx();
+            y = mob.gmy();
 
             g.setColor(Color.blue);
             g.fillRect(mob.gTarget().x() * world.poly(), mob.gTarget().y() * world.poly(), world.poly(), world.poly());
 
+            /*
             g.setColor(new Color(157, 44, 44));
             g.fillRect(mob.X() * world.poly(), mob.Y() * world.poly(), world.poly(), world.poly());
+            */
 
             g.setColor(Color.cyan);
             g.fillRect(x, y, world.poly(), world.poly());
@@ -110,6 +100,7 @@ class RenderWorld extends JPanel implements ActionListener, Dimensions{
             g.drawRect(x, y, world.poly(), world.poly());
             g.drawString(mob.gHunger() + "", x, y + ((world.poly() / 2) + 4));
 
+            /*
             patch = mob.Patch();
             if(patch.size() > 0) {
                 xx = patch.get(0).X();
@@ -118,6 +109,7 @@ class RenderWorld extends JPanel implements ActionListener, Dimensions{
                 g.setColor(Color.magenta);
                 g.fillRect(xx * world.poly(), yy * world.poly(), world.poly(), world.poly());
             }
+            */
         }
 
         for (Eat eat : eats.values()) {
@@ -269,13 +261,13 @@ public class Java implements Dimensions {
         Generator generator = new Generator();
          
         map = generator.createMap();
-        //generator.addTerritory(new Grass(), map);
-        //generator.addTerritory(new Sand(), map);
-        //generator.addTerritory(new Swamp(), map);
+        generator.addTerritory(new Grass(), map);
+        generator.addTerritory(new Sand(), map);
+        generator.addTerritory(new Swamp(), map);
         generator.addTerritory(new Wall(), map);
 
         eats = generator.createEats(1, map);
-        mobs = generator.createMobs(1, map, eats);
+        mobs = generator.createMobs(5, map, eats);
 
         //mobs.get("mob_0").seeInSight(mobs.get("mob_0").gX(), mobs.get("mob_0").gY(), 10, true, 0, Direction.LEFT);
         //

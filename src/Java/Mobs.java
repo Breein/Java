@@ -27,8 +27,9 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
     // флаг для полной остановки потока
     private boolean stop = false;
     
-    private int id, x, y, wx, wy;
-    private double mx, my;
+    private int id, x, y;
+    private position moved = new position();
+    private position movedPos = new position();
 
     private int live = 100;
     private int hunger = 0;
@@ -43,10 +44,6 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
     private HashMap<Integer, AStarOpened> ignored = new HashMap<Integer, AStarOpened>();
     private ArrayList<cellRealPatch> real_patch = new ArrayList<cellRealPatch>();
     private HashMap<String, contentInSight> inSight = new HashMap<String, contentInSight>();
-
-    private int tileSize = 22;
-
-    //private HashMap<String, >
     
     // установка приоритета потока, как много он будет требовать
     // ресурсов(точнее сказать как часто) у проца
@@ -80,11 +77,10 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
 
         speed = map[y][x].price();
 
-        wx = x * POLYSIZE; // координата "х" в окне, при отрисовке
-        wy = y * POLYSIZE; // координата "у" в окне, при отрисовке
-
-        mx = x * POLYSIZE;
-        my = y * POLYSIZE;
+        movedPos.x = 0;
+        movedPos.y = 0;
+        moved.x = 0;
+        moved.y = 0;
 
         thread.setName(this.name);
         find_patch(false);
@@ -92,12 +88,13 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
         mainTimer.start();
     }
 
-    public int x(){
-        return wx;
+    public int gmx(){
+        return x * WORLD.poly() + movedPos.x;
     }
-    public int y(){
-        return wy;
+    public int gmy(){
+        return y * WORLD.poly() + movedPos.y;
     }
+
     public int X(){
         return x;
     }
@@ -409,6 +406,11 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
         x = real_patch.get(0).X();
         y = real_patch.get(0).Y();
 
+        movedPos.x = 0;
+        movedPos.y = 0;
+        moved.x = 0;
+        moved.y = 0;
+
         map[y][x].beHere(name, id, "Mobs");
 
         real_patch.remove(0);
@@ -417,42 +419,33 @@ public class Mobs implements Runnable, Direction, Dimensions, ActionListener{
     private void moveToPatch(){
         World world = WORLD;
         int poly = world.poly();
-        double percent;
 
         if(real_patch.size() > 0){
-            int _wx = real_patch.get(0).X() * POLYSIZE;//map[real_patch.get(0).Y()][real_patch.get(0).X()].wx();
-            int _wy = real_patch.get(0).Y() * POLYSIZE;//map[real_patch.get(0).Y()][real_patch.get(0).X()].wy();
+            int tx = real_patch.get(0).X();
+            int ty = real_patch.get(0).Y();
 
-            int wx_ = real_patch.get(0).X() * poly;
-            int wy_ = real_patch.get(0).Y() * poly;
+            speed = map[ty][tx].price();
 
-            speed = map[real_patch.get(0).Y()][real_patch.get(0).X()].price();
-
-            percent = (world.poly() - 22) * 4.55;
-            LOG.setLog("Percent", percent + "");
-            percent = 1 - (0.001 * percent);
-            LOG.setLog("Percent 2", percent + "");
-
-            if(mx == _wx && my == _wy || wx == wx_ && wy == wy_){
-                moveToCell();
-            }else{
-                if(wx != _wx){
-                    wx = wx > _wx ? wx - 1 : wx + 1;
-                }
-                if(wy != _wy){
-                    wy = wy > _wy ? wy - 1 : wy + 1;
-                }
-
-                if(mx != _wx){
-                    mx = mx > _wx ? mx - percent : mx + percent;
-                }
-                if(my != _wy){
-                    my = my > _wy ? my - percent : my + percent;
-                }
-
-                LOG.setLog("MX : MY", mx + " : " + my + ", p: " + percent);
+            if(x == tx){
+                moved.x = poly;
+            }
+            if(y == ty){
+                moved.y = poly;
             }
 
+            if(poly <= moved.x && poly <= moved.y){
+                moveToCell();
+            }else{
+                if(poly != moved.x) {
+                    movedPos.x = x > tx ? movedPos.x - 1 : movedPos.x + 1;
+                    moved.x++;
+                }
+                if(poly != moved.y) {
+                    movedPos.y = y > ty ? movedPos.y - 1 : movedPos.y + 1;
+                    moved.y++;
+                }
+            }
+            //LOG.setLog("x : y", movedPos.x + " : " + movedPos.y + " | " + moved.x + " : " + moved.y);
         }
     }
 
@@ -556,5 +549,10 @@ class contentInSight extends ContentWorldCell{
     contentInSight(int id, String type){
         super(id, type);
     }
+}
+
+class position{
+    public int x = 0;
+    public int y = 0;
 }
     
